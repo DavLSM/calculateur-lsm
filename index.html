@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur - Prix transport</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 30px; 
+      background: #f2f2f2;  /* gris très pâle */
+    }
+    .header { display: flex; justify-content: space-between; align-items: center; max-width: 700px; margin: 0 auto 20px auto; }
+    .header h1 { margin: 0; color: #222; font-size: 24px; text-align: left; }
+    .header img { height: 60px; }
+    table { border-collapse: collapse; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden; width: 100%; max-width: 700px; }
+    td { padding: 10px 15px; border: 1px solid #ddd; }
+    th { background: #e0e0e0; text-align: left; padding: 10px 15px; font-size: 16px; color: #222; border: 1px solid #ddd; }
+    label { font-weight: 600; }
+    input[type="number"], select { width: 100%; padding: 6px; border: 1px solid #bbb; border-radius: 6px; font-size: 14px; }
+    .btn { display: block; margin: 20px auto; background: #D7F502; color: #222; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .btn:hover { background: #c4df00; }
+    .result { text-align: center; margin-top: 25px; }
+    #prix { font-size: 40px; font-weight: bold; color: #222; }
+    #coutant { font-size: 20px; margin-top: 10px; color: #444; }
+    .incomplet { color: #b00020; font-size: 16px; font-weight: bold; }
+    .card { margin: 20px auto; padding: 20px; border-radius: 12px; max-width: 500px; background: #f0f0f0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .erreur { border: 2px solid red !important; background: #ffecec; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Calculateur – Prix transport</h1>
+    <img src="logo-lsm.png" alt="LSM Logo">
+  </div>
+
+  <!-- Bloc Informations principales -->
+  <table>
+    <tr><th colspan="2">Informations principales</th></tr>
+    <tr>
+      <td><label>Succursale</label></td>
+      <td>
+        <select id="succursale" onchange="majAuto()">
+          <option value="">--Choisir--</option>
+          <option value="Montréal">Montréal</option>
+          <option value="Québec">Québec</option>
+          <option value="STHY">STHY</option>
+          <option value="Saguenay">Saguenay</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td><label>Kilométrage</label></td>
+      <td><input type="number" id="km" min="0" step="5" placeholder="Entrez les kilomètres pour un aller simple" oninput="majAuto()"></td>
+    </tr>
+    <tr>
+      <td><label>Horaire du IN</label></td>
+      <td>
+        <select id="horaireAller" onchange="majAuto()">
+          <option value="">--Choisir--</option>
+          <option>Heures ouvrables (7h @ 17h)</option>
+          <option>Soir (17h @ 21h)</option>
+          <option>Nuit (21h @ 6h) et FDS</option>
+          <option>Jour férié</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td><label>Horaire du OUT</label></td>
+      <td>
+        <select id="horaireRetour" onchange="majAuto()">
+          <option value="">--Choisir--</option>
+          <option value="Non">Non</option>
+          <option>Heures ouvrables (7h @ 17h)</option>
+          <option>Soir (17h @ 21h)</option>
+          <option>Nuit (21h @ 6h) et FDS</option>
+          <option>Jour férié</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td><label>Accompagnateurs</label></td>
+      <td>
+        <select id="accomp" onchange="majAuto()">
+          <option value="">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Bloc Véhicules -->
+  <table>
+    <tr><th colspan="2">Véhicules</th></tr>
+    <tr>
+      <td><label>Véhicule de service</label></td>
+      <td><input type="number" id="vehService" min="0" step="1" placeholder="0, 1, 2..." oninput="majAuto()"></td>
+    </tr>
+    <tr>
+      <td><label>Hino 20 pi</label></td>
+      <td><input type="number" id="hino20" min="0" step="1" placeholder="0, 1, 2..." oninput="majAuto()"></td>
+    </tr>
+    <tr>
+      <td><label>Hino 26 pi</label></td>
+      <td><input type="number" id="hino26" min="0" step="1" placeholder="0, 1, 2..." oninput="majAuto()"></td>
+    </tr>
+  </table>
+
+  <!-- Bouton manuel -->
+  <button class="btn" onclick="calculer(true)">Calculer</button>
+
+  <!-- Résultats -->
+  <div class="card result">
+    <div id="prix"></div>
+    <div id="coutant"></div>
+  </div>
+
+<script>
+// === CONSTANTES issues de ton Excel ===
+const MOD_L9 = 0.3714285714;
+const MARGE = 0.30;
+const F_VEH_SERVICE = 0.4905418989;
+const F_HINO20 = 0.6862011817;
+const F_HINO26 = 0.8983935605;
+
+let aDejaCalcule = false;
+
+function facteurSuccursale(s) {
+  if (s === "Montréal") return 1.4;
+  if (s === "Québec") return 1.2;
+  if (s === "STHY") return 1.2;
+  if (s === "Saguenay") return 1.0;
+  return 1.0;
+}
+
+function supHoraire(h, km, heures, multAccomp) {
+  if (h === "Soir (17h @ 21h)") return km * MOD_L9 * 2 * heures * multAccomp;
+  if (h === "Nuit (21h @ 6h) et FDS" || h === "Jour férié") return km * MOD_L9 * 2 * 2 * heures * multAccomp;
+  return 0;
+}
+
+function majAuto() {
+  if (aDejaCalcule) calculer(false);
+}
+
+function calculer(force) {
+  if (force) aDejaCalcule = true;
+
+  const champs = ["succursale","km","horaireAller","vehService","hino20","hino26"];
+  champs.forEach(id => document.getElementById(id).classList.remove("erreur"));
+
+  const succ = document.getElementById("succursale").value;
+  const km = parseFloat(document.getElementById("km").value) || 0;
+  const horaireAller = document.getElementById("horaireAller").value;
+  const horaireRetour = document.getElementById("horaireRetour").value;
+  const accompVal = document.getElementById("accomp").value;
+  const accomp = accompVal === "" ? 0 : parseInt(accompVal, 10);
+
+  const vehService = parseFloat(document.getElementById("vehService").value) || 0;
+  const h20 = parseFloat(document.getElementById("hino20").value) || 0;
+  const h26 = parseFloat(document.getElementById("hino26").value) || 0;
+
+  const nbHeures = vehService + h20 + h26;
+
+  let incomplet = false;
+  if (!succ) { document.getElementById("succursale").classList.add("erreur"); incomplet = true; }
+  if (km === 0) { document.getElementById("km").classList.add("erreur"); incomplet = true; }
+  if (!horaireAller) { document.getElementById("horaireAller").classList.add("erreur"); incomplet = true; }
+  if (nbHeures === 0) {
+    document.getElementById("vehService").classList.add("erreur");
+    document.getElementById("hino20").classList.add("erreur");
+    document.getElementById("hino26").classList.add("erreur");
+    incomplet = true;
+  }
+
+  if (incomplet) {
+    document.getElementById("prix").innerHTML = "<span class='incomplet'>*Données incomplètes</span>";
+    document.getElementById("coutant").innerHTML = "";
+    return;
+  }
+
+  const facteur = facteurSuccursale(succ);
+  const nbAR = horaireRetour && horaireRetour !== "Non" ? 4 : 2;
+  const multAccomp = 1 + accomp;      
+
+  let sup = 0;
+  sup += supHoraire(horaireAller, km, nbHeures, multAccomp);
+  if (horaireRetour && horaireRetour !== "Non") sup += supHoraire(horaireRetour, km, nbHeures, multAccomp);
+
+  let coutant = (facteur * MOD_L9 * km * nbAR * nbHeures * multAccomp) +
+                (vehService * F_VEH_SERVICE * km * nbAR) +
+                (h20 * F_HINO20 * km * nbAR) +
+                (h26 * F_HINO26 * km * nbAR) +
+                sup;
+
+  if (coutant < 250) coutant = 250;
+  const prix = coutant * (1 + MARGE);
+
+  document.getElementById("prix").innerHTML = "PRIX : " + prix.toFixed(2) + " $";
+  document.getElementById("coutant").innerHTML = "Coûtant : " + coutant.toFixed(2) + " $";
+}
+</script>
+</body>
+</html>
+
+
