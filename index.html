@@ -195,4 +195,96 @@ function calculer(force) {
   if (force) aDejaCalcule = true;
 
   const succ = document.getElementById("succursale").value;
-  const km = pars
+  const km = parseFloat(document.getElementById("km").value) || 0;
+  const horaireAller = document.getElementById("horaireAller").value;
+  const horaireRetour = document.getElementById("horaireRetour").value;
+  const accompVal = document.getElementById("accomp").value;
+  const accomp = accompVal === "" ? 0 : parseInt(accompVal, 10);
+
+  const vehService = parseInt(document.getElementById("vehService").value) || 0;
+  const h20 = parseInt(document.getElementById("hino20").value) || 0;
+  const h26 = parseInt(document.getElementById("hino26").value) || 0;
+
+  const nbHeures = vehService + h20 + h26;
+
+  document.getElementById("succursale").classList.remove("erreur");
+  document.querySelector(".input-km").classList.remove("erreur");
+  document.getElementById("horaireAller").classList.remove("erreur");
+  document.getElementById("vehService").classList.remove("erreur");
+  document.getElementById("hino20").classList.remove("erreur");
+  document.getElementById("hino26").classList.remove("erreur");
+
+  let incomplet = false;
+  if (!succ) { document.getElementById("succursale").classList.add("erreur"); incomplet = true; }
+  if (km === 0) { document.querySelector(".input-km").classList.add("erreur"); incomplet = true; }
+  if (!horaireAller) { document.getElementById("horaireAller").classList.add("erreur"); incomplet = true; }
+  if (nbHeures === 0) {
+    document.getElementById("vehService").classList.add("erreur");
+    document.getElementById("hino20").classList.add("erreur");
+    document.getElementById("hino26").classList.add("erreur");
+    incomplet = true;
+  }
+
+  if (incomplet) {
+    document.getElementById("prix").innerHTML = "<span class='incomplet'>*Données incomplètes</span>";
+    document.getElementById("coutant").innerHTML = "";
+    document.getElementById("coutant").dataset.value = "";
+    document.getElementById("blocPrixManuel").style.display = "none";
+    return;
+  }
+
+  const facteur = facteurSuccursale(succ);
+  const nbAR = (horaireRetour && horaireRetour !== "NA") ? 4 : 2;
+  const multAccomp = 1 + accomp;
+
+  let sup = 0;
+  sup += supHoraire(horaireAller, km, nbHeures, multAccomp);
+  if (horaireRetour && horaireRetour !== "NA") sup += supHoraire(horaireRetour, km, nbHeures, multAccomp);
+
+  let coutantCalc = (facteur * MOD_L9 * km * nbAR * nbHeures * multAccomp) +
+                    (vehService * F_VEH_SERVICE * km * nbAR) +
+                    (h20 * F_HINO20 * km * nbAR) +
+                    (h26 * F_HINO26 * km * nbAR) +
+                    sup;
+
+  const prix = Math.max(coutantCalc * (1 + MARGE), 250);
+  const margeReelle = ((prix - coutantCalc) / coutantCalc) * 100;
+  const couleurMarge = getCouleurMarge(margeReelle);
+
+  document.getElementById("prix").innerHTML = 
+    "PRIX : " + prix.toFixed(2) + " $ <span style='font-size:18px; color:" + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
+  document.getElementById("coutant").innerHTML = "Coûtant : " + coutantCalc.toFixed(2) + " $";
+  document.getElementById("coutant").dataset.value = coutantCalc;
+
+  document.getElementById("blocPrixManuel").style.display = "block";
+}
+
+function majPrixManuel() {
+  const coutantCalc = parseFloat(document.getElementById("coutant").dataset.value || 0);
+  const prixManuel = document.getElementById("prixManuel").value;
+
+  if (prixManuel === "" || coutantCalc <= 0) {
+    calculer(false);
+    return;
+  }
+
+  const prixVal = parseFloat(prixManuel);
+  const margeReelle = ((prixVal - coutantCalc) / coutantCalc) * 100;
+  const couleurMarge = getCouleurMarge(margeReelle);
+
+  document.getElementById("prix").innerHTML = 
+    "PRIX : " + prixVal.toFixed(2) + " $ <span style='font-size:18px; color:" + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
+}
+
+window.onload = () => {
+  document.getElementById("succursale").focus();
+  document.getElementById("formCalc").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      calculer(true);
+    }
+  });
+};
+</script>
+</body>
+</html>
