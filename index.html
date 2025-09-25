@@ -14,7 +14,7 @@
     .header h1 { margin: 0; color: #222; font-size: 24px; text-align: left; }
     .header img { height: 60px; }
     table { border-collapse: collapse; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden; width: 100%; max-width: 700px; }
-    td { padding: 10px 15px; border: 1px solid #ddd; }
+    td { padding: 10px 15px; border: 1px solid #ddd; vertical-align: top; }
     th { background: #e0e0e0; text-align: left; padding: 10px 15px; font-size: 16px; color: #222; border: 1px solid #ddd; }
     label { font-weight: 600; }
     input[type="number"], select { width: 100%; padding: 6px; border: 1px solid #bbb; border-radius: 6px; font-size: 14px; }
@@ -112,10 +112,11 @@
             <option>Nuit (21h @ 6h) et FDS</option>
             <option>Jour férié</option>
           </select>
+          <small style="color:#666; font-size:12px;">Choisir « N/A » s’il n’y a pas de ramassage</small>
         </td>
       </tr>
       <tr>
-        <td><label>Accompagnateurs</label></td>
+        <td><label>Accompagnateur(s) (Total)</label></td>
         <td>
           <select id="accomp" onchange="majAuto()">
             <option value="">Aucun</option>
@@ -159,7 +160,7 @@
   </div>
 
 <script>
-const MOD_L9 = 0.3714285714;
+const MOD_L9 = 0.43;
 const MARGE = 0.30;
 const F_VEH_SERVICE = 0.4905418989;
 const F_HINO20 = 0.6862011817;
@@ -168,11 +169,19 @@ const F_HINO26 = 0.8983935605;
 let aDejaCalcule = false;
 
 function facteurSuccursale(s) {
-  if (s === "Montréal") return 1.4;
-  if (s === "Québec") return 1.2;
+  if (s === "Montréal") return 1.8;
+  if (s === "Québec") return 1.4;
   if (s === "STHY") return 1.2;
   if (s === "Saguenay") return 1.0;
   return 1.0;
+}
+
+function flatRateSuccursale(s) {
+  if (s === "Montréal") return 400;
+  if (s === "Québec") return 350;
+  if (s === "STHY") return 300;
+  if (s === "Saguenay") return 250;
+  return 250;
 }
 
 function supHoraire(h, km, heures, multAccomp) {
@@ -207,17 +216,21 @@ function calculer(force) {
 
   const nbHeures = vehService + h20 + h26;
 
+  // reset styles
   document.getElementById("succursale").classList.remove("erreur");
   document.querySelector(".input-km").classList.remove("erreur");
   document.getElementById("horaireAller").classList.remove("erreur");
+  document.getElementById("horaireRetour").classList.remove("erreur");
   document.getElementById("vehService").classList.remove("erreur");
   document.getElementById("hino20").classList.remove("erreur");
   document.getElementById("hino26").classList.remove("erreur");
 
+  // validation : OUT obligatoire
   let incomplet = false;
   if (!succ) { document.getElementById("succursale").classList.add("erreur"); incomplet = true; }
   if (km === 0) { document.querySelector(".input-km").classList.add("erreur"); incomplet = true; }
   if (!horaireAller) { document.getElementById("horaireAller").classList.add("erreur"); incomplet = true; }
+  if (horaireRetour === "") { document.getElementById("horaireRetour").classList.add("erreur"); incomplet = true; }
   if (nbHeures === 0) {
     document.getElementById("vehService").classList.add("erreur");
     document.getElementById("hino20").classList.add("erreur");
@@ -247,7 +260,8 @@ function calculer(force) {
                     (h26 * F_HINO26 * km * nbAR) +
                     sup;
 
-  const prix = Math.max(coutantCalc * (1 + MARGE), 250);
+  const flatRate = flatRateSuccursale(succ);
+  const prix = Math.max(coutantCalc * (1 + MARGE), flatRate);
   const margeReelle = ((prix - coutantCalc) / coutantCalc) * 100;
   const couleurMarge = getCouleurMarge(margeReelle);
 
@@ -288,3 +302,4 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
