@@ -50,6 +50,29 @@
       padding: 6px;
       font-size: 14px;
     }
+
+    /* Champ avec KM */
+    .input-km {
+      display: flex;
+      align-items: center;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 8px;
+    }
+    .input-km input {
+      border: none;
+      outline: none;
+      flex: 1;
+      padding: 6px;
+      font-size: 14px;
+    }
+    .input-km span {
+      font-size: 14px;
+      color: #555;
+      margin-left: 5px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -75,7 +98,12 @@
     </tr>
     <tr>
       <td><label>Kilométrage</label></td>
-      <td><input type="number" id="km" min="0" step="5" placeholder="Kilomètres pour un aller simple" oninput="majAuto()"></td>
+      <td>
+        <div class="input-km">
+          <input type="number" id="km" min="0" step="5" placeholder="Kilomètres pour un aller simple" oninput="majAuto()">
+          <span>KM</span>
+        </div>
+      </td>
     </tr>
     <tr>
       <td><label>Horaire du IN</label></td>
@@ -293,3 +321,5 @@ function majPrixManuel() {
 </script>
 </body>
 </html>
+
+
