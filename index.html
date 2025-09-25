@@ -131,7 +131,7 @@
       </td>
     </tr>
     <tr>
-      <td><label>Accompagnateur(s)</label></td>
+      <td><label>Accompagnateurs</label></td>
       <td>
         <select id="accomp" onchange="majAuto()">
           <option value="">Aucun</option>
@@ -318,7 +318,14 @@ function majPrixManuel() {
     "PRIX : " + prixVal.toFixed(2) + " $ <span style='font-size:18px; color:" 
     + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
 }
+
+// === AJOUT : Permet d'appuyer sur Entrée pour lancer le calcul ===
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    calculer(true);
+  }
+});
 </script>
 </body>
 </html>
-
