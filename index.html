@@ -8,7 +8,7 @@
     body { 
       font-family: Arial, sans-serif; 
       margin: 30px; 
-      background: #f2f2f2;  /* gris très pâle */
+      background: #f2f2f2; 
     }
     .header { display: flex; justify-content: space-between; align-items: center; max-width: 700px; margin: 0 auto 20px auto; }
     .header h1 { margin: 0; color: #222; font-size: 24px; text-align: left; }
@@ -20,12 +20,36 @@
     input[type="number"], select { width: 100%; padding: 6px; border: 1px solid #bbb; border-radius: 6px; font-size: 14px; }
     .btn { display: block; margin: 20px auto; background: #D7F502; color: #222; border: none; padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; }
     .btn:hover { background: #c4df00; }
-    .result { text-align: center; margin-top: 25px; }
-    #prix { font-size: 40px; font-weight: bold; color: #222; }
-    #coutant { font-size: 20px; margin-top: 10px; color: #444; }
+    .result { margin-top: 25px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    #prix { font-size: 28px; font-weight: bold; color: #222; text-align: left; margin-bottom: 5px; }
+    #coutant { font-size: 20px; color: #555; font-style: italic; text-align: left; }
     .incomplet { color: #b00020; font-size: 16px; font-weight: bold; }
     .card { margin: 20px auto; padding: 20px; border-radius: 12px; max-width: 500px; background: #f0f0f0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .erreur { border: 2px solid red !important; background: #ffecec; }
+    #blocPrixManuel { margin-top:15px; text-align:left; display:none; }
+
+    /* Champ avec $ */
+    .input-dollar {
+      display: flex;
+      align-items: center;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 8px;
+      max-width: 200px;
+    }
+    .input-dollar span {
+      font-size: 16px;
+      color: #555;
+      margin-right: 5px;
+    }
+    .input-dollar input {
+      border: none;
+      outline: none;
+      flex: 1;
+      padding: 6px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -51,7 +75,7 @@
     </tr>
     <tr>
       <td><label>Kilométrage</label></td>
-      <td><input type="number" id="km" min="0" step="5" placeholder="Entrez les kilomètres pour un aller simple" oninput="majAuto()"></td>
+      <td><input type="number" id="km" min="0" step="5" placeholder="Entrez les kilomètres" oninput="majAuto()"></td>
     </tr>
     <tr>
       <td><label>Horaire du IN</label></td>
@@ -70,7 +94,7 @@
       <td>
         <select id="horaireRetour" onchange="majAuto()">
           <option value="">--Choisir--</option>
-          <option value="Non">Non</option>
+          <option value="NA">N/A</option>
           <option>Heures ouvrables (7h @ 17h)</option>
           <option>Soir (17h @ 21h)</option>
           <option>Nuit (21h @ 6h) et FDS</option>
@@ -95,25 +119,56 @@
     <tr><th colspan="2">Véhicules</th></tr>
     <tr>
       <td><label>Véhicule de service</label></td>
-      <td><input type="number" id="vehService" min="0" step="1" placeholder="0, 1, 2..." oninput="majAuto()"></td>
+      <td>
+        <select id="vehService" onchange="majAuto()">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </td>
     </tr>
     <tr>
       <td><label>Hino 20 pi</label></td>
-      <td><input type="number" id="hino20" min="0" step="1" placeholder="0, 1, 2..." oninput="majAuto()"></td>
+      <td>
+        <select id="hino20" onchange="majAuto()">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </td>
     </tr>
     <tr>
       <td><label>Hino 26 pi</label></td>
-      <td><input type="number" id="hino26" min="0" step="1" placeholder="0, 1, 2..." oninput="majAuto()"></td>
+      <td>
+        <select id="hino26" onchange="majAuto()">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </td>
     </tr>
   </table>
 
-  <!-- Bouton manuel -->
+  <!-- Bouton calcul -->
   <button class="btn" onclick="calculer(true)">Calculer</button>
 
   <!-- Résultats -->
   <div class="card result">
     <div id="prix"></div>
     <div id="coutant"></div>
+    <div id="blocPrixManuel">
+      <label for="prixManuel">Modification manuelle du prix :</label>
+      <div class="input-dollar">
+        <span>$</span>
+        <input type="number" id="prixManuel" step="10" oninput="majPrixManuel()">
+      </div>
+    </div>
   </div>
 
 <script>
@@ -144,6 +199,12 @@ function majAuto() {
   if (aDejaCalcule) calculer(false);
 }
 
+function getCouleurMarge(margeReelle) {
+  if (margeReelle >= 30) return "green";
+  if (margeReelle > 0) return "orange";
+  return "red";
+}
+
 function calculer(force) {
   if (force) aDejaCalcule = true;
 
@@ -157,9 +218,9 @@ function calculer(force) {
   const accompVal = document.getElementById("accomp").value;
   const accomp = accompVal === "" ? 0 : parseInt(accompVal, 10);
 
-  const vehService = parseFloat(document.getElementById("vehService").value) || 0;
-  const h20 = parseFloat(document.getElementById("hino20").value) || 0;
-  const h26 = parseFloat(document.getElementById("hino26").value) || 0;
+  const vehService = parseInt(document.getElementById("vehService").value) || 0;
+  const h20 = parseInt(document.getElementById("hino20").value) || 0;
+  const h26 = parseInt(document.getElementById("hino26").value) || 0;
 
   const nbHeures = vehService + h20 + h26;
 
@@ -177,31 +238,58 @@ function calculer(force) {
   if (incomplet) {
     document.getElementById("prix").innerHTML = "<span class='incomplet'>*Données incomplètes</span>";
     document.getElementById("coutant").innerHTML = "";
+    document.getElementById("coutant").dataset.value = "";
+    document.getElementById("blocPrixManuel").style.display = "none";
     return;
   }
 
   const facteur = facteurSuccursale(succ);
-  const nbAR = horaireRetour && horaireRetour !== "Non" ? 4 : 2;
+  const nbAR = (horaireRetour && horaireRetour !== "NA") ? 4 : 2;
   const multAccomp = 1 + accomp;      
 
   let sup = 0;
   sup += supHoraire(horaireAller, km, nbHeures, multAccomp);
-  if (horaireRetour && horaireRetour !== "Non") sup += supHoraire(horaireRetour, km, nbHeures, multAccomp);
+  if (horaireRetour && horaireRetour !== "NA") sup += supHoraire(horaireRetour, km, nbHeures, multAccomp);
 
-  let coutant = (facteur * MOD_L9 * km * nbAR * nbHeures * multAccomp) +
-                (vehService * F_VEH_SERVICE * km * nbAR) +
-                (h20 * F_HINO20 * km * nbAR) +
-                (h26 * F_HINO26 * km * nbAR) +
-                sup;
+  let coutantCalc = (facteur * MOD_L9 * km * nbAR * nbHeures * multAccomp) +
+                    (vehService * F_VEH_SERVICE * km * nbAR) +
+                    (h20 * F_HINO20 * km * nbAR) +
+                    (h26 * F_HINO26 * km * nbAR) +
+                    sup;
 
-  if (coutant < 250) coutant = 250;
-  const prix = coutant * (1 + MARGE);
+  const prix = Math.max(coutantCalc * (1 + MARGE), 250);
 
-  document.getElementById("prix").innerHTML = "PRIX : " + prix.toFixed(2) + " $";
-  document.getElementById("coutant").innerHTML = "Coûtant : " + coutant.toFixed(2) + " $";
+  const margeReelle = ((prix - coutantCalc) / coutantCalc) * 100;
+  const couleurMarge = getCouleurMarge(margeReelle);
+
+  document.getElementById("prix").innerHTML = 
+    "PRIX : " + prix.toFixed(2) + " $ <span style='font-size:18px; color:" + couleurMarge + ";'>(Marge : " 
+    + margeReelle.toFixed(1) + "%)</span>";
+  document.getElementById("coutant").innerHTML = "Coûtant : " + coutantCalc.toFixed(2) + " $";
+  document.getElementById("coutant").dataset.value = coutantCalc;
+
+  // rendre visible le champ de prix manuel après un premier calcul
+  document.getElementById("blocPrixManuel").style.display = "block";
+}
+
+function majPrixManuel() {
+  const coutantCalc = parseFloat(document.getElementById("coutant").dataset.value || 0);
+  const prixManuel = document.getElementById("prixManuel").value;
+
+  // Si l'utilisateur efface, on revient au prix calculé
+  if (prixManuel === "" || coutantCalc <= 0) {
+    calculer(false);
+    return;
+  }
+
+  const prixVal = parseFloat(prixManuel);
+  const margeReelle = ((prixVal - coutantCalc) / coutantCalc) * 100;
+  const couleurMarge = getCouleurMarge(margeReelle);
+
+  document.getElementById("prix").innerHTML = 
+    "PRIX : " + prixVal.toFixed(2) + " $ <span style='font-size:18px; color:" 
+    + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
 }
 </script>
 </body>
 </html>
-
-
