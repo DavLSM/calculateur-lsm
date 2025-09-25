@@ -81,6 +81,8 @@
     <img src="logo-lsm.png" alt="LSM Logo">
   </div>
 
+  <!-- Formulaire global -->
+  <form onsubmit="event.preventDefault(); calculer(true);">
   <!-- Bloc Informations principales -->
   <table>
     <tr><th colspan="2">Informations principales</th></tr>
@@ -182,6 +184,7 @@
       </td>
     </tr>
   </table>
+  </form>
 
   <!-- Bouton calcul -->
   <button class="btn" onclick="calculer(true)">Calculer</button>
@@ -296,7 +299,6 @@ function calculer(force) {
   document.getElementById("coutant").innerHTML = "Coûtant : " + coutantCalc.toFixed(2) + " $";
   document.getElementById("coutant").dataset.value = coutantCalc;
 
-  // rendre visible le champ de prix manuel après un premier calcul
   document.getElementById("blocPrixManuel").style.display = "block";
 }
 
@@ -304,7 +306,6 @@ function majPrixManuel() {
   const coutantCalc = parseFloat(document.getElementById("coutant").dataset.value || 0);
   const prixManuel = document.getElementById("prixManuel").value;
 
-  // Si l'utilisateur efface, on revient au prix calculé
   if (prixManuel === "" || coutantCalc <= 0) {
     calculer(false);
     return;
@@ -319,13 +320,10 @@ function majPrixManuel() {
     + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
 }
 
-// === AJOUT : Permet d'appuyer sur Entrée pour lancer le calcul ===
-document.addEventListener("keydown", function(event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    calculer(true);
-  }
-});
+// === Focus automatique sur Succursale ===
+window.onload = () => {
+  document.getElementById("succursale").focus();
+};
 </script>
 </body>
 </html>
