@@ -73,6 +73,13 @@
       margin-left: 5px;
       white-space: nowrap;
     }
+
+    /* Quand le bloc km est en erreur */
+    .input-km.erreur {
+      border: 2px solid red !important;
+      background: #ffecec;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -216,8 +223,9 @@ function getCouleurMarge(margeReelle) {
 function calculer(force) {
   if (force) aDejaCalcule = true;
 
-  const champs = ["succursale","km","horaireAller","vehService","hino20","hino26"];
+  const champs = ["succursale","horaireAller","vehService","hino20","hino26"];
   champs.forEach(id => document.getElementById(id).classList.remove("erreur"));
+  document.querySelector(".input-km").classList.remove("erreur");
 
   const succ = document.getElementById("succursale").value;
   const km = parseFloat(document.getElementById("km").value) || 0;
@@ -234,7 +242,7 @@ function calculer(force) {
 
   let incomplet = false;
   if (!succ) { document.getElementById("succursale").classList.add("erreur"); incomplet = true; }
-  if (km === 0) { document.getElementById("km").classList.add("erreur"); incomplet = true; }
+  if (km === 0) { document.querySelector(".input-km").classList.add("erreur"); incomplet = true; }
   if (!horaireAller) { document.getElementById("horaireAller").classList.add("erreur"); incomplet = true; }
   if (nbHeures === 0) {
     document.getElementById("vehService").classList.add("erreur");
