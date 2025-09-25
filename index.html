@@ -8,7 +8,7 @@
     body { 
       font-family: Arial, sans-serif; 
       margin: 30px; 
-      background: #f2f2f2; 
+      background: #f9f9f9; 
     }
     .header { display: flex; justify-content: space-between; align-items: center; max-width: 700px; margin: 0 auto 20px auto; }
     .header h1 { margin: 0; color: #222; font-size: 24px; text-align: left; }
@@ -28,7 +28,7 @@
     .erreur { border: 2px solid red !important; background: #ffecec; }
     #blocPrixManuel { margin-top:15px; text-align:left; display:none; }
 
-    /* Champ avec $ */
+    /* Champ $ */
     .input-dollar {
       display: flex;
       align-items: center;
@@ -38,20 +38,10 @@
       padding: 0 8px;
       max-width: 200px;
     }
-    .input-dollar span {
-      font-size: 16px;
-      color: #555;
-      margin-right: 5px;
-    }
-    .input-dollar input {
-      border: none;
-      outline: none;
-      flex: 1;
-      padding: 6px;
-      font-size: 14px;
-    }
+    .input-dollar span { font-size: 16px; color: #555; margin-right: 5px; }
+    .input-dollar input { border: none; outline: none; flex: 1; padding: 6px; font-size: 14px; }
 
-    /* Champ avec KM */
+    /* Champ KM */
     .input-km {
       display: flex;
       align-items: center;
@@ -59,27 +49,13 @@
       border-radius: 6px;
       background: #fff;
       padding: 0 8px;
+      overflow: hidden;
     }
-    .input-km input {
-      border: none;
-      outline: none;
-      flex: 1;
-      padding: 6px;
-      font-size: 14px;
-    }
-    .input-km span {
-      font-size: 14px;
-      color: #555;
-      margin-left: 5px;
-      white-space: nowrap;
-    }
-
-    /* Quand le bloc km est en erreur */
-    .input-km.erreur {
-      border: 2px solid red !important;
-      background: #ffecec;
-      border-radius: 6px;
-    }
+    .input-km input { border: none; outline: none; flex: 1; padding: 6px; font-size: 14px; }
+    .input-km span { font-size: 14px; color: #555; margin-left: 5px; white-space: nowrap; }
+    .input-km.erreur { border: 2px solid red !important; background: #ffecec; border-radius: 6px; }
+    .input-km.erreur input { background: transparent; }
+    .input-km.erreur span { background: transparent; }
   </style>
 </head>
 <body>
@@ -88,9 +64,8 @@
     <img src="logo-lsm.png" alt="LSM Logo">
   </div>
 
-  <!-- Formulaire global -->
+  <!-- Formulaire -->
   <form id="formCalc" onsubmit="event.preventDefault(); calculer(true);">
-    <!-- Bloc Informations principales -->
     <table>
       <tr><th colspan="2">Informations principales</th></tr>
       <tr>
@@ -109,7 +84,7 @@
         <td><label>Kilométrage (aller simple)</label></td>
         <td>
           <div class="input-km">
-            <input type="number" id="km" min="0" step="5" placeholder="Kilomètres pour un aller simple" oninput="majAuto()">
+            <input type="number" id="km" min="0" step="5" placeholder="Kilométrage (aller simple)" oninput="majAuto()">
             <span>KM</span>
           </div>
         </td>
@@ -151,7 +126,6 @@
       </tr>
     </table>
 
-    <!-- Bloc Véhicules -->
     <table>
       <tr><th colspan="2">Véhicules</th></tr>
       <tr>
@@ -168,12 +142,10 @@
       </tr>
     </table>
 
-    <!-- Bouton calcul (type submit) -->
     <button class="btn" type="submit">Calculer</button>
     <input type="submit" hidden>
   </form>
 
-  <!-- Résultats -->
   <div class="card result">
     <div id="prix"></div>
     <div id="coutant"></div>
@@ -187,7 +159,6 @@
   </div>
 
 <script>
-// === CONSTANTES issues de ton Excel ===
 const MOD_L9 = 0.3714285714;
 const MARGE = 0.30;
 const F_VEH_SERVICE = 0.4905418989;
@@ -223,99 +194,5 @@ function getCouleurMarge(margeReelle) {
 function calculer(force) {
   if (force) aDejaCalcule = true;
 
-  const champs = ["succursale","horaireAller","vehService","hino20","hino26"];
-  champs.forEach(id => document.getElementById(id).classList.remove("erreur"));
-  document.querySelector(".input-km").classList.remove("erreur");
-
   const succ = document.getElementById("succursale").value;
-  const km = parseFloat(document.getElementById("km").value) || 0;
-  const horaireAller = document.getElementById("horaireAller").value;
-  const horaireRetour = document.getElementById("horaireRetour").value;
-  const accompVal = document.getElementById("accomp").value;
-  const accomp = accompVal === "" ? 0 : parseInt(accompVal, 10);
-
-  const vehService = parseInt(document.getElementById("vehService").value) || 0;
-  const h20 = parseInt(document.getElementById("hino20").value) || 0;
-  const h26 = parseInt(document.getElementById("hino26").value) || 0;
-
-  const nbHeures = vehService + h20 + h26;
-
-  let incomplet = false;
-  if (!succ) { document.getElementById("succursale").classList.add("erreur"); incomplet = true; }
-  if (km === 0) { document.querySelector(".input-km").classList.add("erreur"); incomplet = true; }
-  if (!horaireAller) { document.getElementById("horaireAller").classList.add("erreur"); incomplet = true; }
-  if (nbHeures === 0) {
-    document.getElementById("vehService").classList.add("erreur");
-    document.getElementById("hino20").classList.add("erreur");
-    document.getElementById("hino26").classList.add("erreur");
-    incomplet = true;
-  }
-
-  if (incomplet) {
-    document.getElementById("prix").innerHTML = "<span class='incomplet'>*Données incomplètes</span>";
-    document.getElementById("coutant").innerHTML = "";
-    document.getElementById("coutant").dataset.value = "";
-    document.getElementById("blocPrixManuel").style.display = "none";
-    return;
-  }
-
-  const facteur = facteurSuccursale(succ);
-  const nbAR = (horaireRetour && horaireRetour !== "NA") ? 4 : 2;
-  const multAccomp = 1 + accomp;      
-
-  let sup = 0;
-  sup += supHoraire(horaireAller, km, nbHeures, multAccomp);
-  if (horaireRetour && horaireRetour !== "NA") sup += supHoraire(horaireRetour, km, nbHeures, multAccomp);
-
-  let coutantCalc = (facteur * MOD_L9 * km * nbAR * nbHeures * multAccomp) +
-                    (vehService * F_VEH_SERVICE * km * nbAR) +
-                    (h20 * F_HINO20 * km * nbAR) +
-                    (h26 * F_HINO26 * km * nbAR) +
-                    sup;
-
-  const prix = Math.max(coutantCalc * (1 + MARGE), 250);
-
-  const margeReelle = ((prix - coutantCalc) / coutantCalc) * 100;
-  const couleurMarge = getCouleurMarge(margeReelle);
-
-  document.getElementById("prix").innerHTML = 
-    "PRIX : " + prix.toFixed(2) + " $ <span style='font-size:18px; color:" + couleurMarge + ";'>(Marge : " 
-    + margeReelle.toFixed(1) + "%)</span>";
-  document.getElementById("coutant").innerHTML = "Coûtant : " + coutantCalc.toFixed(2) + " $";
-  document.getElementById("coutant").dataset.value = coutantCalc;
-
-  document.getElementById("blocPrixManuel").style.display = "block";
-}
-
-function majPrixManuel() {
-  const coutantCalc = parseFloat(document.getElementById("coutant").dataset.value || 0);
-  const prixManuel = document.getElementById("prixManuel").value;
-
-  if (prixManuel === "" || coutantCalc <= 0) {
-    calculer(false);
-    return;
-  }
-
-  const prixVal = parseFloat(prixManuel);
-  const margeReelle = ((prixVal - coutantCalc) / coutantCalc) * 100;
-  const couleurMarge = getCouleurMarge(margeReelle);
-
-  document.getElementById("prix").innerHTML = 
-    "PRIX : " + prixVal.toFixed(2) + " $ <span style='font-size:18px; color:" 
-    + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
-}
-
-// === Focus auto et Enter robuste ===
-window.onload = () => {
-  document.getElementById("succursale").focus();
-  const form = document.getElementById("formCalc");
-  form.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      calculer(true);
-    }
-  });
-};
-</script>
-</body>
-</html>
+  const km = pars
