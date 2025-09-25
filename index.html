@@ -82,112 +82,89 @@
   </div>
 
   <!-- Formulaire global -->
-  <form onsubmit="event.preventDefault(); calculer(true);">
-  <!-- Bloc Informations principales -->
-  <table>
-    <tr><th colspan="2">Informations principales</th></tr>
-    <tr>
-      <td><label>Succursale de départ</label></td>
-      <td>
-        <select id="succursale" onchange="majAuto()">
-          <option value="">--Choisir--</option>
-          <option value="Montréal">Montréal</option>
-          <option value="Québec">Québec</option>
-          <option value="STHY">STHY</option>
-          <option value="Saguenay">Saguenay</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td><label>Kilométrage (aller simple)</label></td>
-      <td>
-        <div class="input-km">
-          <input type="number" id="km" min="0" step="5" placeholder="Kilomètres pour un aller simple" oninput="majAuto()">
-          <span>KM</span>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td><label>Horaire du IN</label></td>
-      <td>
-        <select id="horaireAller" onchange="majAuto()">
-          <option value="">--Choisir--</option>
-          <option>Heures ouvrables (7h @ 17h)</option>
-          <option>Soir (17h @ 21h)</option>
-          <option>Nuit (21h @ 6h) et FDS</option>
-          <option>Jour férié</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td><label>Horaire du OUT</label></td>
-      <td>
-        <select id="horaireRetour" onchange="majAuto()">
-          <option value="">--Choisir--</option>
-          <option value="NA">N/A</option>
-          <option>Heures ouvrables (7h @ 17h)</option>
-          <option>Soir (17h @ 21h)</option>
-          <option>Nuit (21h @ 6h) et FDS</option>
-          <option>Jour férié</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td><label>Accompagnateurs</label></td>
-      <td>
-        <select id="accomp" onchange="majAuto()">
-          <option value="">Aucun</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-      </td>
-    </tr>
-  </table>
+  <form id="formCalc" onsubmit="event.preventDefault(); calculer(true);">
+    <!-- Bloc Informations principales -->
+    <table>
+      <tr><th colspan="2">Informations principales</th></tr>
+      <tr>
+        <td><label>Succursale de départ</label></td>
+        <td>
+          <select id="succursale" onchange="majAuto()">
+            <option value="">--Choisir--</option>
+            <option value="Montréal">Montréal</option>
+            <option value="Québec">Québec</option>
+            <option value="STHY">STHY</option>
+            <option value="Saguenay">Saguenay</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Kilométrage (aller simple)</label></td>
+        <td>
+          <div class="input-km">
+            <input type="number" id="km" min="0" step="5" placeholder="Kilomètres pour un aller simple" oninput="majAuto()">
+            <span>KM</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Horaire du IN</label></td>
+        <td>
+          <select id="horaireAller" onchange="majAuto()">
+            <option value="">--Choisir--</option>
+            <option>Heures ouvrables (7h @ 17h)</option>
+            <option>Soir (17h @ 21h)</option>
+            <option>Nuit (21h @ 6h) et FDS</option>
+            <option>Jour férié</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Horaire du OUT</label></td>
+        <td>
+          <select id="horaireRetour" onchange="majAuto()">
+            <option value="">--Choisir--</option>
+            <option value="NA">N/A</option>
+            <option>Heures ouvrables (7h @ 17h)</option>
+            <option>Soir (17h @ 21h)</option>
+            <option>Nuit (21h @ 6h) et FDS</option>
+            <option>Jour férié</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Accompagnateurs</label></td>
+        <td>
+          <select id="accomp" onchange="majAuto()">
+            <option value="">Aucun</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </td>
+      </tr>
+    </table>
 
-  <!-- Bloc Véhicules -->
-  <table>
-    <tr><th colspan="2">Véhicules</th></tr>
-    <tr>
-      <td><label>Véhicule de service</label></td>
-      <td>
-        <select id="vehService" onchange="majAuto()">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td><label>Hino 20 pi</label></td>
-      <td>
-        <select id="hino20" onchange="majAuto()">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td><label>Hino 26 pi</label></td>
-      <td>
-        <select id="hino26" onchange="majAuto()">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </td>
-    </tr>
-  </table>
+    <!-- Bloc Véhicules -->
+    <table>
+      <tr><th colspan="2">Véhicules</th></tr>
+      <tr>
+        <td><label>Véhicule de service</label></td>
+        <td><input type="number" id="vehService" min="0" step="1" value="0" oninput="majAuto()"></td>
+      </tr>
+      <tr>
+        <td><label>Hino 20 pi</label></td>
+        <td><input type="number" id="hino20" min="0" step="1" value="0" oninput="majAuto()"></td>
+      </tr>
+      <tr>
+        <td><label>Hino 26 pi</label></td>
+        <td><input type="number" id="hino26" min="0" step="1" value="0" oninput="majAuto()"></td>
+      </tr>
+    </table>
+
+    <!-- Bouton calcul (type submit) -->
+    <button class="btn" type="submit">Calculer</button>
+    <input type="submit" hidden>
   </form>
-
-  <!-- Bouton calcul -->
-  <button class="btn" onclick="calculer(true)">Calculer</button>
 
   <!-- Résultats -->
   <div class="card result">
@@ -320,9 +297,16 @@ function majPrixManuel() {
     + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
 }
 
-// === Focus automatique sur Succursale ===
+// === Focus auto et Enter robuste ===
 window.onload = () => {
   document.getElementById("succursale").focus();
+  const form = document.getElementById("formCalc");
+  form.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      calculer(true);
+    }
+  });
 };
 </script>
 </body>
