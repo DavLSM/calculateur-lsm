@@ -56,6 +56,66 @@
     .input-km.erreur { border: 2px solid red !important; background: #ffecec; border-radius: 6px; }
     .input-km.erreur input { background: transparent; }
     .input-km.erreur span { background: transparent; }
+
+    /* Modale de confirmation */
+    .modal {
+      display: none; 
+      position: fixed;
+      z-index: 1000; 
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); 
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      animation: fadeIn 0.3s ease;
+      border-top: 6px solid #D7F502;
+    }
+    .modal-content p {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #222;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: space-around;
+      gap: 15px;
+    }
+    .btn-confirm {
+      background: #D7F502;
+      color: #222;
+      border: none;
+      padding: 10px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-confirm:hover { background: #c4df00; }
+    .btn-cancel {
+      background: #eee;
+      color: #444;
+      border: none;
+      padding: 10px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-cancel:hover { background: #ccc; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -146,6 +206,7 @@
     </table>
 
     <button class="btn" type="submit">Calculer</button>
+    <button class="btn" type="button" onclick="resetForm()">Réinitialiser</button>
     <input type="submit" hidden>
   </form>
 
@@ -157,6 +218,17 @@
       <div class="input-dollar">
         <span>$</span>
         <input type="number" id="prixManuel" step="10" oninput="majPrixManuel()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <p>Voulez-vous vraiment réinitialiser le formulaire ?</p>
+      <div class="modal-actions">
+        <button id="confirmYes" class="btn-confirm">Oui</button>
+        <button id="confirmNo" class="btn-cancel">Non</button>
       </div>
     </div>
   </div>
@@ -182,8 +254,8 @@ function flatRateSuccursale(s) {
   if (s === "Montréal") return 400;
   if (s === "Québec") return 350;
   if (s === "STHY") return 300;
-  if (s === "Saguenay") return 155;
-  return 155;
+  if (s === "Saguenay") return 250;
+  return 250;
 }
 
 function supHoraire(h, km, heures, multAccomp) {
@@ -227,7 +299,7 @@ function calculer(force) {
   document.getElementById("hino20").classList.remove("erreur");
   document.getElementById("hino26").classList.remove("erreur");
 
-  // validation : OUT obligatoire
+  // validation
   let incomplet = false;
   if (!succ) { document.getElementById("succursale").classList.add("erreur"); incomplet = true; }
   if (km === 0) { document.querySelector(".input-km").classList.add("erreur"); incomplet = true; }
@@ -273,35 +345,9 @@ function calculer(force) {
   document.getElementById("coutant").dataset.value = coutantCalc;
 
   document.getElementById("blocPrixManuel").style.display = "block";
+
+  saveFormData();
 }
 
 function majPrixManuel() {
-  const coutantCalc = parseFloat(document.getElementById("coutant").dataset.value || 0);
-  const prixManuel = document.getElementById("prixManuel").value;
-
-  if (prixManuel === "" || coutantCalc <= 0) {
-    calculer(false);
-    return;
-  }
-
-  const prixVal = parseFloat(prixManuel);
-  const margeReelle = ((prixVal - coutantCalc) / coutantCalc) * 100;
-  const couleurMarge = getCouleurMarge(margeReelle);
-
-  document.getElementById("prix").innerHTML = 
-    "PRIX : " + prixVal.toFixed(2) + " $ <span style='font-size:18px; color:" + couleurMarge + ";'>(Marge : " + margeReelle.toFixed(1) + "%)</span>";
-}
-
-window.onload = () => {
-  document.getElementById("succursale").focus();
-  document.getElementById("formCalc").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      calculer(true);
-    }
-  });
-};
-</script>
-</body>
-</html>
-
+  const coutantCalc = parseFloat
